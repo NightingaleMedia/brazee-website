@@ -1,6 +1,6 @@
-const config = require('./config')
+const config = require("./config");
 
-const pathPrefix = config.pathPrefix === '/' ? '' : config.pathPrefix
+const pathPrefix = config.pathPrefix === "/" ? "" : config.pathPrefix;
 
 module.exports = {
   siteMetadata: {
@@ -17,26 +17,27 @@ module.exports = {
     },
   },
   plugins: [
+    "gatsby-plugin-sass",
     {
       // keep as first gatsby-source-filesystem plugin for gatsby image support
-      resolve: 'gatsby-source-filesystem',
+      resolve: "gatsby-source-filesystem",
       options: {
         path: `${__dirname}/static/img`,
-        name: 'uploads',
+        name: "uploads",
       },
     },
     {
-      resolve: 'gatsby-source-filesystem',
+      resolve: "gatsby-source-filesystem",
       options: {
         path: `${__dirname}/static/img`,
-        name: 'images',
+        name: "images",
       },
     },
     {
-      resolve: 'gatsby-source-filesystem',
+      resolve: "gatsby-source-filesystem",
       options: {
         path: `${__dirname}/src/pages`,
-        name: 'pages',
+        name: "pages",
       },
     },
     {
@@ -48,17 +49,17 @@ module.exports = {
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
     {
-      resolve: 'gatsby-transformer-remark',
+      resolve: "gatsby-transformer-remark",
       options: {
         plugins: [
           {
-            resolve: 'gatsby-remark-relative-images',
+            resolve: "gatsby-remark-relative-images",
             options: {
-              name: 'uploads',
+              name: "uploads",
             },
           },
           {
-            resolve: 'gatsby-remark-images',
+            resolve: "gatsby-remark-images",
             options: {
               // It's important to specify the maxWidth (in pixels) of
               // the content container as this plugin uses this as the
@@ -80,22 +81,22 @@ module.exports = {
         showSpinner: false,
       },
     },
-    {
-      resolve: `gatsby-plugin-google-tagmanager`,
-      options: {
-        id: config.googleTagManagerID,
-        includeInDevelopment: false,
-      },
-    },
+    // {
+    //   resolve: `gatsby-plugin-google-tagmanager`,
+    //   options: {
+    //     id: config.googleTagManagerID,
+    //     includeInDevelopment: false,
+    //   },
+    // },
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
         name: config.siteTitle,
         short_name: config.siteTitleAlt,
-        start_url: '/index.html',
+        start_url: "/index.html",
         background_color: config.backgroundColor,
         theme_color: config.themeColor,
-        display: 'standalone',
+        display: "standalone",
         icons: [
           {
             src: `/icons/icon-192x192.png`,
@@ -108,7 +109,7 @@ module.exports = {
             type: `image/png`,
           },
         ],
-        cache_busting_mode: 'none',
+        cache_busting_mode: "none",
       },
     },
     {
@@ -118,13 +119,13 @@ module.exports = {
       },
     },
     {
-      resolve: 'gatsby-plugin-feed',
+      resolve: "gatsby-plugin-feed",
       options: {
-        setup (ref) {
-          const ret = ref.query.site.siteMetadata.rssMetadata
-          ret.allMarkdownRemark = ref.query.allMarkdownRemark
-          ret.generator = config.siteTitle
-          return ret
+        setup(ref) {
+          const ret = ref.query.site.siteMetadata.rssMetadata;
+          ret.allMarkdownRemark = ref.query.allMarkdownRemark;
+          ret.generator = config.siteTitle;
+          return ret;
         },
         query: `
                 {
@@ -145,13 +146,13 @@ module.exports = {
               `,
         feeds: [
           {
-            serialize (ctx) {
-              const rssMetadata = ctx.query.site.siteMetadata.rssMetadata
+            serialize(ctx) {
+              const rssMetadata = ctx.query.site.siteMetadata.rssMetadata;
               return ctx.query.allMarkdownRemark.edges
                 .filter(
-                  edge => edge.node.frontmatter.templateKey === 'article-page',
+                  (edge) => edge.node.frontmatter.templateKey === "article-page"
                 )
-                .map(edge => ({
+                .map((edge) => ({
                   categories: edge.node.frontmatter.tags,
                   date: edge.node.frontmatter.date,
                   title: edge.node.frontmatter.title,
@@ -160,8 +161,8 @@ module.exports = {
                   author: rssMetadata.author,
                   url: rssMetadata.site_url + edge.node.fields.slug,
                   guid: rssMetadata.site_url + edge.node.fields.slug,
-                  custom_elements: [{ 'content:encoded': edge.node.html }],
-                }))
+                  custom_elements: [{ "content:encoded": edge.node.html }],
+                }));
             },
             query: `
                     {
@@ -204,46 +205,14 @@ module.exports = {
         resolvers: {
           // For any node of type MarkdownRemark, list how to resolve the fields` values
           MarkdownRemark: {
-            title: node => node.frontmatter.title,
-            author: node => node.frontmatter.author,
-            tags: node => node.frontmatter.tags,
-            slug: node => node.fields.slug,
-            templateKey: node => node.frontmatter.templateKey,
+            title: (node) => node.frontmatter.title,
+            author: (node) => node.frontmatter.author,
+            tags: (node) => node.frontmatter.tags,
+            slug: (node) => node.fields.slug,
+            templateKey: (node) => node.frontmatter.templateKey,
           },
         },
       },
     },
-    {
-      resolve: 'gatsby-plugin-netlify-cms',
-      options: {
-        modulePath: `${__dirname}/src/cms/cms.js`,
-        stylesPath: `${__dirname}/src/assets/sass/styles.sass`,
-        enableIdentityWidget: true,
-        htmlTitle: `Gatsby Starter Business Content Manager`,
-      },
-    },
-    {
-      resolve: `gatsby-plugin-netlify`,
-      options: {
-        mergeSecurityHeaders: false,
-        headers: {
-          '/*.js': [
-            'cache-control: public, max-age=31536000, immutable',
-          ],
-          '/*.css': [
-            'cache-control: public, max-age=31536000, immutable',
-          ],
-          '/sw.js': [
-            'cache-control: public, max-age=0, must-revalidate',
-          ],
-          '/*': [
-            `X-Frame-Options: DENY`,
-            `X-XSS-Protection: 1; mode=block`,
-            `X-Content-Type-Options: nosniff`,
-            `Referrer-Policy: no-referrer-when-downgrade`,
-          ],
-        },
-      },
-    },
   ],
-}
+};
